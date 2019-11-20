@@ -17,9 +17,9 @@ args = argv.parse_args( )
 
 if 'galaxy' not in args or args.galaxy is None :
 	if args.galaxy_from is None : args.galaxy_from = 1
-	if args.galaxy_to is None : args.galaxy_to = 6
+	if args.galaxy_to is None : args.galaxy_to = 8
 
-	galaxyes = range( args.galaxy_from , args.galaxy_to )
+	galaxyes = range( args.galaxy_from , args.galaxy_to + 1 )
 else :
 	galaxyes = [ args.galaxy ]
 
@@ -27,7 +27,7 @@ if 'system' not in args or args.system is None :
 	if args.system_from is None : args.system_from = 180
 	if args.system_to is None : args.system_to = 230
 
-	systems = range( args.system_from , args.system_to )
+	systems = range( args.system_from , args.system_to + 1 )
 else :
 	systems = [ args.system ]
 
