@@ -44,8 +44,6 @@ for option in [
 	'User-Agent=Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36'
 ] : options.add_argument( option )
 
-result = { }
-
 url_match = re.compile( '.*?\?page=fleetTable&galaxy=\d+&system=\d+&planet=(\d+)&planettype=(\d+)&target_mission=(\d+)\'>(.*?)<' )
 
 try :
@@ -89,14 +87,5 @@ try :
 						print( content_item )
 					else :
 						print( '%s: %s:%s:%s' % ( title , galaxy , system , planet ) )
-except Exception as exception :
-	print( exception )
-
-	for ( key , value ) in sorted( result.items( ) , key = lambda kv : kv[ 1 ][ 'total' ] ) :
-		if value[ 'total' ] < 0.5e6 : continue
-
-		print( key )
-		print( { 'Переработчиков' , ceil( value[ 'total' ] / 2e4 ) } )
-		print( value[ 'items' ] )
-		print( )
+except Exception as exception : pass
 finally : wdh.quit( )
