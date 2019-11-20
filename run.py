@@ -44,7 +44,7 @@ for option in [
 	'User-Agent=Mozilla/5.0 (Windows NT 4.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2049.0 Safari/537.36'
 ] : options.add_argument( option )
 
-url_match = re.compile( '.*?\?page=fleetTable&galaxy=\d+&system=\d+&planet=(\d+)&planettype=(\d+)&target_mission=(\d+)\'>(.*?)<' )
+url_match = re.compile( '.*?\?page=fleetTable&galaxy=\d+&system=\d+&planet=(\d+)&planettype=(\d+)&target_mission=(\d+)\'>(.+)' )
 
 try :
 	wdh = webdriver.Chrome( executable_path = '/usr/lib/chromium-browser/chromedriver' , chrome_options = options )
@@ -80,7 +80,7 @@ try :
 
 					if target_mission in [ '1' , '3' , '4' , '5' , '16' ] : continue
 
-					if target_mission in [ '8' ] :
+					if target_mission in [ '8' , '12' ] :
 						content_item = re.sub( r'<.*?>' , ' ' , content )
 						content_item = re.sub( r'\s+' , ' ' , content_item )
 
