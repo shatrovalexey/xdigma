@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import argparse
 import re
+import traceback
 
 argv = argparse.ArgumentParser( description = 'Веб-краулер' )
 argv.add_argument( '--galaxy' , type = int , help = '№ галактики' )
@@ -65,9 +66,10 @@ try :
 			print( '%s:%s:xxx' % ( galaxy , system ) )
 			wdh.get( 'https://xdigma.ru/uni03/game.php?page=galaxy2d&galaxy=%s&system=%s' % ( galaxy , system ) )
 
-			for a_node in wdh.find_elements_by_xpath( '//a[@class="tooltip_sticky"][@data-tooltip-content]' ) :
-				content = a_node.get_attribute( 'data-tooltip-content' )
-
+			for content in [
+				a_node.get_attribute( 'data-tooltip-content' )
+				for a_node in wdh.find_elements_by_xpath( '//a[@class="tooltip_sticky"][@data-tooltip-content]' )
+			] :
 				for content_item in content.split( ) :
 					matches = url_match.match( content_item )
 
@@ -75,63 +77,66 @@ try :
 
 					( planet , planet_type , target_mission , title ) = matches.group( 1 , 2 , 3 , 4 )
 
-					if target_mission in [ '1' , '3' , '4' , '5' , '16' ] : continue
+					if target_mission in [ '1' , '3' , '4' , '5'  '9' , '16' ] : continue
 
 					content_item = re.sub( r'<.*?>' , ' ' , content )
 					content_item = re.sub( r'\s+' , ' ' , content_item )
 
+					if target_mission not in [ '12' , '19' ] : continue
+
 					if args.grab is None :
-						if target_mission in [ '8' , '12' ] :
+						if target_mission in [ '12' , '19' ] :
 							print( content_item )
 						else :
 							print( '%s: %s:%s:%s' % ( title , galaxy , system , planet ) )
-					else :
-						print( content_item )
-						print( target_mission )
 
-						wdh.get( 'https://xdigma.ru/uni03/game.php?page=fleetTable' )
+						continue
 
-						try :
-							field = wdh.find_element_by_name( 'ship209' )
-						except :
-							print( 'Ships not found' )
-							continue
+					print( content_item )
+					print( target_mission )
 
-						ships_count = 1
+					wdh.get( 'https://xdigma.ru/uni03/game.php?page=fleetTable' )
 
-						try :
-							if target_mission == '8' :
-								ships_count = 1
-							elif target_mission == '12' :
-								ships_count = 100
-							else :
-								ships_count = 1
+					try :
+						field = wdh.find_element_by_name( 'ship209' )
+					except :
+						print( 'Ships not found' )
+						continue
 
-							field.clear( )
-							field.send_keys( ships_count )
-							field.send_keys( Keys.RETURN )
+					try :
+						if target_mission == '8' :
+							ships_count = 200
+						elif target_mission == '12' :
+							ships_count = 200
+						else :
+							ships_count = 10
 
-							field = wdh.find_element_by_id( 'galaxy' )
-							field.clear( )
-							field.send_keys( galaxy )
+						field.clear( )
+						field.send_keys( ships_count )
+						field.send_keys( Keys.RETURN )
 
-							field = wdh.find_element_by_id( 'system' )
-							field.clear( )
-							field.send_keys( system )
+						field = wdh.find_element_by_xpath( '//*[@id="galaxy"]' )
+						field.clear( )
+						field.send_keys( galaxy )
 
-							field = wdh.find_element_by_id( 'planet' )
-							field.clear( )
-							field.send_keys( planet )
+						field = wdh.find_element_by_xpath( '//*[@id="system"]' )
+						field.clear( )
+						field.send_keys( system )
 
-							wdh.execute_script( 'document.forms["form"].submit( )' )
+						field = wdh.find_element_by_xpath( '//*[@id="planet"]' )
+						field.clear( )
+						field.send_keys( planet )
 
-							# field = wdh.find_element_by_css_selector( '.fl_bigbtn_go' )
-							# field.click( )
+						wdh.execute_script( 'document.forms["form"].submit( )' )
 
-							field = wdh.find_element_by_id( 'radio_%s' % target_mission )
-							field.click( )
-							field.send_keys( Keys.RETURN )
-						except Exception as exception :
-							print( exception )
-except Exception as exception : pass
+						field = wdh.find_element_by_xpath( '//*[@id="radio_%s"]' % target_mission )
+						field.click( )
+						field.send_keys( Keys.RETURN )
+
+						print( 'sent %s' % ships_count )
+					except Exception as exception :
+						print( exception )
+except Exception as exception :
+	print( exception )
+	print( traceback.format_exc( ) )
 finally : wdh.quit( )
